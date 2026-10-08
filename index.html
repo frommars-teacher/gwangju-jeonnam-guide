@@ -1,281 +1,36 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>전남·광주 대표 찾기</title>
-  <style>
-    :root{
-      --green:#0f9d58; --green2:#12b76a; --sky:#4ea8de; --ink:#1f2937; --muted:#667085;
-      --line:#e5e7eb; --bg:#f7faf8; --card:#ffffff; --chip:#eef8f2; --accent:#fff3cd;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-    button,input{font:inherit}
-    .wrap{max-width:1200px;margin:0 auto;padding:0 18px}
-    header{background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
-    .head{display:flex;align-items:center;gap:20px;padding:18px 0}
-    .logo{font-size:26px;font-weight:950;color:var(--green);white-space:nowrap}
-    .logo small{display:block;font-size:11px;color:#98a2b3;font-weight:700;letter-spacing:.03em}
-    .search{display:flex;flex:1;gap:10px;min-width:0}
-    .search input{min-width:0;width:100%}
-    .search input{flex:1;border:3px solid var(--green);border-radius:18px;padding:14px 16px;font-size:18px;background:white}
-    .search button{border:0;background:var(--green);color:white;border-radius:18px;padding:0 22px;font-weight:900;cursor:pointer}
-    .hero{padding:26px 0 14px}
-    .hero-card{background:linear-gradient(135deg,#ecfdf3,#eff8ff);border:1px solid #d8f0df;border-radius:24px;padding:22px}
-    .hero h1{margin:0 0 8px;font-size:34px}
-    .hero p{margin:0;color:var(--muted);line-height:1.6}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-    .chip{border:1px solid #d5e9da;background:white;border-radius:999px;padding:8px 12px;font-weight:700;color:#285d3c;cursor:pointer}
-    .layout{display:grid;grid-template-columns:480px minmax(0,1fr);gap:22px;padding:18px 0 34px}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 8px 28px rgba(0,0,0,.04)}
-    .map-panel{padding:16px}
-    .panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 6px 12px}
-    .panel-title h2{margin:0;font-size:20px}
-    .panel-title span{font-size:13px;color:var(--muted)}
-    .map-box{position:relative;height:690px;border-radius:20px;overflow:hidden;background:linear-gradient(#d9f0fb 0 14%,#d9f4dd 14% 100%);border:1px solid #d8e7dc}
-    .coast{position:absolute;left:-3%;right:-3%;bottom:-14%;height:30%;background:#77c5ec;border-radius:50% 50% 0 0/40% 40% 0 0}
-    .landshape{position:absolute;inset:7% 7% 10% 7%;background:linear-gradient(180deg,#cae9bf,#bddc9f);clip-path:polygon(18% 13%,29% 9%,38% 7%,46% 10%,56% 8%,66% 12%,78% 16%,85% 26%,87% 36%,92% 49%,89% 60%,92% 73%,84% 81%,74% 88%,66% 92%,53% 94%,44% 87%,37% 80%,27% 79%,20% 69%,14% 61%,10% 51%,8% 39%,11% 26%);opacity:.9;border:2px dashed rgba(48,97,67,.18)}
-    .landlabel{position:absolute;top:12px;left:14px;background:rgba(255,255,255,.84);padding:7px 10px;border-radius:12px;font-size:13px;color:#3d4b5b;font-weight:700}
-    .node{position:absolute;transform:translate(-50%,-50%);border:0;background:transparent;cursor:pointer;padding:0;text-align:center}
-    .dot{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--green);margin:0 auto 3px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-    .node.active .dot,.node:hover .dot{background:var(--green2);transform:scale(1.18)}
-    .node.gwangju .dot{border-color:#7c3aed}
-    .node.gwangju.active .dot,.node.gwangju:hover .dot{background:#8b5cf6}
-    .node label{display:block;background:rgba(255,255,255,.92);padding:3px 7px;border-radius:999px;font-size:11px;font-weight:900;color:#334155;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.06)}
-    .results-panel{padding:16px}
-    .summary{font-size:14px;color:var(--muted);padding:6px 8px 14px;border-bottom:1px solid #edf1ee}
-    .result-list{display:grid;gap:14px;padding-top:14px}
-    .result-card{display:grid;grid-template-columns:130px 1fr;gap:14px;border:1px solid var(--line);border-radius:20px;padding:14px;cursor:pointer;background:white;transition:.15s transform,.15s border-color}
-    .result-card:hover{transform:translateY(-2px);border-color:#bfe0c9}
-    .result-card.active{border-color:var(--green);box-shadow:0 8px 22px rgba(16,120,74,.08)}
-    .thumb{display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:18px;background:linear-gradient(135deg,#eefbf3,#edf5ff);min-height:120px;border:1px solid #ddecdf}
-    .thumb .emoji{font-size:42px;line-height:1}
-    .thumb .cap{margin-top:8px;font-weight:900;font-size:15px;text-align:center}
-    .meta{font-size:13px;color:#667085;margin-bottom:6px;font-weight:800}
-    .title{font-size:21px;font-weight:950;margin:0 0 8px}
-    .desc{margin:0 0 10px;color:#475467;line-height:1.58}
-    .tags{display:flex;gap:7px;flex-wrap:wrap}
-    .tag{font-size:12px;font-weight:800;background:var(--chip);color:#27724d;padding:6px 8px;border-radius:999px}
-    .hint{background:#f9fbfa;border:1px dashed #d7e6dc;border-radius:18px;padding:16px;color:#475467;line-height:1.6}
-    .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#576174}
-    .legend span{display:flex;align-items:center;gap:6px}
-    .legend i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
-    .legend .g i{background:#8b5cf6}
-    footer{padding:0 0 26px;color:#7b8794;font-size:13px}
-    @media (max-width: 980px){
-      .layout{grid-template-columns:1fr}
-      .map-box{height:560px}
-    }
-    @media (max-width: 640px){
-      .head{display:block}
-      .search{margin-top:12px}
-      .hero h1{font-size:28px}
-      .result-card{grid-template-columns:1fr}
-      .thumb{min-height:100px}
-      .map-box{height:500px}
-      .node label{font-size:10px}
-    }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#243f35"><meta name="description" content="광주 5개 구와 전남 22개 시·군. 실제 사진과 지도로 만나는 우리 지역의 풍경, 먹거리, 문화.">
+<title>남도 발견 — 광주·전남 지역 도감</title>
+<link rel="preconnect" href="https://thumb.wikimedia.org"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=2"><script src="data.js?v=2" defer></script><script src="app.js?v=2" defer></script>
 </head>
 <body>
-  <header>
-    <div class="wrap head">
-      <div class="logo">전남·광주 대표 찾기<small>검색형 지역 조사 웹앱</small></div>
-      <div class="search">
-        <input id="searchInput" aria-label="지역 또는 대표 항목 검색" placeholder="예: 여수, 전복, 광주, 대나무, 녹차" onkeydown="if(event.key==='Enter'&&!event.isComposing)doSearch()" />
-        <button onclick="doSearch()">검색</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="wrap hero">
-    <div class="hero-card">
-      <h1>전남·광주를 대표하는 것을 찾아보자!</h1>
-      <p>
-        지역 이름이나 대표하는 것을 검색하면 <b>지도에서 어디에 있는지</b> 확인할 수 있고,
-        <b>대표 이미지(간단한 아이콘)</b>와 <b>짧은 설명</b>도 함께 볼 수 있어요.
-      </p>
-      <div class="chips" id="chips"></div>
-    </div>
-  </div>
-
-  <main class="wrap layout">
-    <section class="panel map-panel">
-      <div class="panel-title">
-        <h2>🗺️ 전남·광주 위치 지도</h2>
-        <span>지역을 누르면 오른쪽 카드가 바뀝니다.</span>
-      </div>
-      <div class="map-box" id="mapBox">
-        <div class="coast"></div>
-        <div class="landshape"></div>
-        <div class="landlabel">※ 실제 행정구역 경계를 단순화한 교육용 위치 지도입니다.</div>
-        <div id="nodes"></div>
-      </div>
-      <div class="legend">
-        <span><i></i> 전라남도</span>
-        <span class="g"><i></i> 광주광역시</span>
-      </div>
-    </section>
-
-    <section class="panel results-panel">
-      <div class="panel-title">
-        <h2>🔎 검색 결과</h2>
-        <span id="resultCount">27개 지역</span>
-      </div>
-      <div class="summary" id="summaryText">지역 또는 대표하는 것을 검색해 보세요. 예: 순천, 녹차, 갓김치, 무등산</div>
-      <div class="result-list" id="results"></div>
-    </section>
-  </main>
-
-  <footer class="wrap">
-    대표 항목은 수업용으로 간단하게 정리한 예시입니다. 필요하면 더 자세한 설명이나 지역 수를 늘려서 다시 수정할 수 있습니다.
-  </footer>
-
-  <script>
-    const REGIONS = [
-      {name:'광주 동구', area:'광주', group:'자치구', rep:'무등산·국립아시아문화전당', emoji:'🏛️', x:32, y:20, desc:'광주 동구는 무등산과 국립아시아문화전당처럼 역사·문화·관광을 떠올리게 하는 곳으로 많이 알려져 있어요.', tags:['문화','관광','산'], keywords:['동구','광주동구','무등산','아시아문화전당','acc']},
-      {name:'광주 서구', area:'광주', group:'자치구', rep:'김대중컨벤션센터', emoji:'🏢', x:25, y:22, desc:'광주 서구는 상무지구와 김대중컨벤션센터처럼 전시·회의·도시 기능을 대표하는 장소로 알려져 있어요.', tags:['도시','전시','회의'], keywords:['서구','광주서구','김대중컨벤션센터','상무지구']},
-      {name:'광주 남구', area:'광주', group:'자치구', rep:'양림동 역사문화마을', emoji:'🏘️', x:29, y:27, desc:'광주 남구는 양림동 역사문화마을처럼 오래된 건물과 근대문화가 어우러진 동네로 유명해요.', tags:['역사','문화마을'], keywords:['남구','광주남구','양림동','역사문화마을']},
-      {name:'광주 북구', area:'광주', group:'자치구', rep:'광주비엔날레', emoji:'🎨', x:29, y:15, desc:'광주 북구는 광주비엔날레와 전시 문화를 떠올리게 하는 지역으로 많이 소개돼요.', tags:['예술','전시'], keywords:['북구','광주북구','비엔날레','전시관']},
-      {name:'광주 광산구', area:'광주', group:'자치구', rep:'송정떡갈비·송정역시장', emoji:'🍖', x:21, y:26, desc:'광주 광산구는 송정떡갈비와 송정역시장처럼 먹거리와 시장 문화를 대표하는 곳으로 많이 알려져 있어요.', tags:['음식','시장'], keywords:['광산구','광주광산구','송정떡갈비','송정역시장']},
-
-      {name:'목포', area:'전남', group:'시', rep:'유달산·해상케이블카', emoji:'🚠', x:12, y:60, desc:'목포는 바다를 끼고 있는 항구 도시로, 유달산과 해상케이블카가 대표적인 관광 이미지예요.', tags:['관광','바다'], keywords:['목포시','유달산','케이블카','항구']},
-      {name:'여수', area:'전남', group:'시', rep:'여수밤바다·갓김치', emoji:'🌃', x:83, y:63, desc:'여수는 여수밤바다와 갓김치로 아주 유명해요. 바다 풍경과 먹거리를 함께 떠올릴 수 있어요.', tags:['관광','바다','음식'], keywords:['여수시','여수밤바다','갓김치','바다']},
-      {name:'순천', area:'전남', group:'시', rep:'순천만습지', emoji:'🦢', x:75, y:56, desc:'순천은 순천만습지와 갈대밭, 생태도시 이미지로 대표되는 지역이에요.', tags:['생태','관광'], keywords:['순천시','순천만','습지','갈대밭']},
-      {name:'나주', area:'전남', group:'시', rep:'나주배·곰탕', emoji:'🍐', x:35, y:35, desc:'나주는 달콤한 나주배와 나주곰탕으로 잘 알려져 있어요.', tags:['특산물','음식'], keywords:['나주시','배','곰탕','나주배']},
-      {name:'광양', area:'전남', group:'시', rep:'매화마을·광양불고기', emoji:'🌸', x:84, y:48, desc:'광양은 봄철 매화마을과 광양불고기로 많이 알려져 있는 도시예요.', tags:['꽃','음식','관광'], keywords:['광양시','매화마을','불고기','매화']},
-
-      {name:'담양', area:'전남', group:'군', rep:'죽녹원·대나무', emoji:'🎋', x:36, y:16, desc:'담양은 죽녹원과 대나무의 고장으로 아주 유명해요. 푸른 대나무 숲을 떠올리면 돼요.', tags:['자연','관광','특산물'], keywords:['담양군','죽녹원','대나무']},
-      {name:'곡성', area:'전남', group:'군', rep:'섬진강기차마을', emoji:'🚂', x:62, y:33, desc:'곡성은 섬진강기차마을 같은 체험 관광지로 잘 알려져 있어요.', tags:['체험','관광'], keywords:['곡성군','기차마을','섬진강']},
-      {name:'구례', area:'전남', group:'군', rep:'지리산·산수유', emoji:'⛰️', x:74, y:32, desc:'구례는 지리산과 산수유 마을의 이미지가 강한 지역이에요.', tags:['산','꽃','관광'], keywords:['구례군','지리산','산수유']},
-      {name:'고흥', area:'전남', group:'군', rep:'나로우주센터', emoji:'🚀', x:79, y:71, desc:'고흥은 나로우주센터로 유명해서 우주와 과학을 떠올리기 쉬운 지역이에요.', tags:['과학','관광'], keywords:['고흥군','나로우주센터','우주센터']},
-      {name:'보성', area:'전남', group:'군', rep:'녹차밭', emoji:'🍵', x:66, y:58, desc:'보성은 넓은 녹차밭으로 아주 유명해요. 초록빛 차밭 풍경이 대표 이미지예요.', tags:['특산물','관광'], keywords:['보성군','녹차','차밭']},
-      {name:'화순', area:'전남', group:'군', rep:'고인돌유적', emoji:'🪨', x:48, y:27, desc:'화순은 세계문화유산인 고인돌유적으로 대표되는 곳이에요.', tags:['역사','문화유산'], keywords:['화순군','고인돌','유적']},
-      {name:'장흥', area:'전남', group:'군', rep:'정남진·한우삼합', emoji:'🥩', x:57, y:53, desc:'장흥은 정남진과 한우삼합 같은 먹거리·관광 이미지가 잘 알려져 있어요.', tags:['음식','관광'], keywords:['장흥군','정남진','한우삼합']},
-      {name:'강진', area:'전남', group:'군', rep:'청자', emoji:'🏺', x:45, y:57, desc:'강진은 푸른 빛깔의 고려청자로 유명해요. 전통 도자기의 고장으로 많이 소개돼요.', tags:['전통','문화'], keywords:['강진군','청자','도자기']},
-      {name:'해남', area:'전남', group:'군', rep:'땅끝마을', emoji:'🌅', x:31, y:72, desc:'해남은 우리나라 땅끝마을로 유명해요. 남쪽 끝이라는 특징이 대표 이미지예요.', tags:['관광','바다'], keywords:['해남군','땅끝마을','땅끝']},
-      {name:'영암', area:'전남', group:'군', rep:'월출산', emoji:'🥾', x:35, y:49, desc:'영암은 월출산의 바위 봉우리와 산세로 잘 알려져 있어요.', tags:['산','관광'], keywords:['영암군','월출산']},
-      {name:'무안', area:'전남', group:'군', rep:'양파', emoji:'🧅', x:23, y:48, desc:'무안은 양파 생산지로 유명해요. 농산물 특산물 조사에 잘 어울리는 지역이에요.', tags:['특산물','농업'], keywords:['무안군','양파']},
-      {name:'함평', area:'전남', group:'군', rep:'나비축제', emoji:'🦋', x:24, y:31, desc:'함평은 나비축제로 특히 유명해요. 축제를 통해 지역을 대표하는 이미지를 만들었어요.', tags:['축제','관광'], keywords:['함평군','나비축제','나비']},
-      {name:'영광', area:'전남', group:'군', rep:'굴비', emoji:'🐟', x:18, y:20, desc:'영광은 짭짤하게 말린 굴비로 아주 유명한 지역이에요.', tags:['특산물','음식'], keywords:['영광군','굴비']},
-      {name:'장성', area:'전남', group:'군', rep:'백양사', emoji:'🛕', x:28, y:10, desc:'장성은 백양사와 단풍 풍경으로 잘 알려져 있어요.', tags:['사찰','관광'], keywords:['장성군','백양사','단풍']},
-      {name:'완도', area:'전남', group:'군', rep:'전복·청산도', emoji:'🐚', x:41, y:79, desc:'완도는 전복 같은 해산물과 청산도처럼 아름다운 섬 풍경으로 대표돼요.', tags:['해산물','섬','관광'], keywords:['완도군','전복','청산도']},
-      {name:'진도', area:'전남', group:'군', rep:'진돗개', emoji:'🐕', x:16, y:76, desc:'진도는 충성심이 강한 진돗개로 아주 잘 알려져 있어요.', tags:['동물','특산'], keywords:['진도군','진돗개']},
-      {name:'신안', area:'전남', group:'군', rep:'퍼플섬·천일염', emoji:'🟪', x:8, y:44, desc:'신안은 퍼플섬과 천일염으로 유명해요. 섬이 많아 ‘섬의 고장’ 이미지도 강해요.', tags:['섬','관광','특산물'], keywords:['신안군','퍼플섬','천일염','소금']}
-    ];
-
-    const chips = ['광주','전남','바다','산','특산물','음식','축제','문화','여수','담양','완도','보성'];
-    let currentResults = [...REGIONS];
-    let currentSelected = REGIONS[0].name;
-
-    function init(){
-      document.getElementById('chips').innerHTML = chips.map(c => `<button class="chip" onclick="chipSearch('${c}')">#${c}</button>`).join('');
-      renderMap();
-      renderResults(REGIONS, '전체 지역 보기');
-      highlightNode(currentSelected);
-    }
-
-    function chipSearch(word){
-      document.getElementById('searchInput').value = word;
-      doSearch();
-    }
-
-    function searchData(q){
-      const s = q.trim().toLowerCase();
-      if(!s) return [...REGIONS];
-      return REGIONS.filter(r => {
-        const hay = [r.name, r.area, r.group, r.rep, r.desc, ...r.tags, ...r.keywords].join(' ').toLowerCase();
-        return hay.includes(s);
-      });
-    }
-
-    function doSearch(){
-      const q = document.getElementById('searchInput').value.trim();
-      const results = searchData(q);
-      currentResults = results;
-      currentSelected = results.length ? results[0].name : '';
-      renderResults(results, q ? `“${q}” 검색 결과` : '전체 지역 보기');
-      highlightNode(currentSelected);
-    }
-
-    function renderMap(){
-      const nodes = document.getElementById('nodes');
-      nodes.innerHTML = REGIONS.map(r => `
-        <button class="node ${r.area==='광주' ? 'gwangju' : ''}" id="node-${safeId(r.name)}" style="left:${r.x}%;top:${r.y}%" onclick="selectRegion('${r.name.replace(/'/g,"\\'")}')">
-          <div class="dot"></div>
-          <label>${r.name.replace('광주 ','')}</label>
-        </button>
-      `).join('');
-    }
-
-    function selectRegion(name){
-      const found = REGIONS.find(r => r.name === name);
-      if(!found) return;
-      currentSelected = name;
-      currentResults = [found];
-      highlightNode(name);
-      renderResults([found], `${found.name} 자세히 보기`);
-      document.getElementById('searchInput').value = found.name;
-    }
-
-    function highlightNode(name){
-      document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
-      if(!name) return;
-      const target = document.getElementById('node-' + safeId(name));
-      if(target) target.classList.add('active');
-    }
-
-    function renderResults(list, label){
-      const box = document.getElementById('results');
-      document.getElementById('resultCount').textContent = `${list.length}개 결과`;
-      document.getElementById('summaryText').textContent = list.length
-        ? `${label} · 지도에서도 위치를 확인할 수 있어요.`
-        : `검색 결과가 없어요. 다른 지역명이나 대표하는 것을 검색해 보세요.`;
-
-      if(!list.length){
-        box.innerHTML = `
-          <div class="hint">
-            <b>검색 팁</b><br>
-            지역 이름(예: 순천, 여수, 담양)이나 대표하는 것(예: 녹차, 전복, 굴비, 무등산)을 검색해 보세요.
-          </div>`;
-        return;
-      }
-
-      box.innerHTML = list.map(r => `
-        <article class="result-card ${currentSelected===r.name ? 'active' : ''}" role="button" tabindex="0" aria-label="${r.name} 지도 위치 확인" aria-pressed="${currentSelected===r.name}" onclick="focusCard('${r.name.replace(/'/g,"\\'")}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-          <div class="thumb">
-            <div class="emoji">${r.emoji}</div>
-            <div class="cap">${r.rep}</div>
-          </div>
-          <div>
-            <div class="meta">${r.area} · ${r.group}</div>
-            <h3 class="title">${r.name}</h3>
-            <p class="desc"><b>대표하는 것:</b> ${r.rep}<br>${r.desc}</p>
-            <div class="tags">
-              <span class="tag">지도 위치 확인</span>
-              ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-            </div>
-          </div>
-        </article>
-      `).join('');
-    }
-
-    function focusCard(name){
-      currentSelected = name;
-      highlightNode(name);
-      document.querySelectorAll('.result-card').forEach(c => {
-        const active = c.querySelector('.title').textContent === name;
-        c.classList.toggle('active', active);
-        c.setAttribute('aria-pressed', String(active));
-      });
-    }
-
-    function safeId(str){
-      return str.replace(/[^a-zA-Z0-9가-힣]/g,'_');
-    }
-
-    init();
-  </script>
-</body>
-</html>
+<a class="skip-link" href="#explore">지역 탐색 바로가기</a>
+<header class="site-header"><div class="header-inner">
+<a href="./" class="brand" aria-label="남도 발견 처음으로"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 22 13 8l7 11 5-7M5 27h22" stroke="currentColor" stroke-width="2.2"/><circle cx="25" cy="7" r="2.5" fill="currentColor"/></svg></span><span>남도 발견<small>광주·전남 지역 도감</small></span></a>
+<nav aria-label="주 메뉴"><a href="#explore" class="nav-link">지역 둘러보기</a><button id="savedNav" class="saved-nav" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4Z"/></svg>담은 지역 <span id="savedCount">0</span></button></nav>
+</div></header>
+<main>
+<section class="hero page-width" aria-labelledby="heroTitle">
+<div class="hero-copy"><p class="eyebrow">OUR NEIGHBORHOOD, NEW DISCOVERIES</p><h1 id="heroTitle">가까운 곳에서,<br><em>새로운 발견.</em></h1><p class="hero-description">대나무 숲부터 바닷마을까지.<br>사진과 지도를 따라 우리 지역의 이야기를 만나 보세요.</p><a class="hero-link" href="#explore">어떤 지역이 궁금한가요? <span aria-hidden="true">↗</span></a><div class="hero-stat"><span><b>22</b> 전남의 시·군</span><span><b>5</b> 광주의 자치구</span></div></div>
+<div class="hero-visual"><img id="heroImage" alt="보성 녹차밭" fetchpriority="high" width="960" height="640"><div class="hero-photo-shade"></div><span class="photo-note">사진으로 떠나는 남도</span><div class="hero-caption"><div><span id="heroKicker">초록이 겹겹이 쌓이는 곳</span><button id="heroDetail">보성, 녹차밭 <span aria-hidden="true">↗</span></button></div><div class="hero-pagination" role="group" aria-label="표지 사진 선택"><button data-hero="14" aria-label="보성 녹차밭" aria-pressed="true">01</button><button data-hero="6" aria-label="여수 밤바다" aria-pressed="false">02</button><button data-hero="10" aria-label="담양 죽녹원" aria-pressed="false">03</button></div></div></div>
+</section>
+<section class="discovery page-width" id="explore" aria-labelledby="exploreTitle">
+<div class="section-heading"><div><p class="eyebrow">EXPLORE THE REGION</p><h2 id="exploreTitle">우리 지역, 하나씩 알아보기</h2></div><p>이름을 검색하거나 지도에서 골라 보세요.</p></div>
+<form id="searchForm" role="search"><div class="search-box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><label class="sr-only" for="searchInput">지역 또는 대표 항목 검색</label><input type="search" id="searchInput" placeholder="지역이나 대표하는 것을 검색해 보세요" autocomplete="off"><button class="clear-search" type="button" id="clearSearch" aria-label="검색어 지우기" hidden>×</button><button class="search-submit" type="submit">검색</button></div><div class="search-suggestions"><span>이렇게 찾아보세요</span><button type="button" data-query="전복">전복</button><button type="button" data-query="무등산">무등산</button><button type="button" data-query="녹차">녹차</button><button type="button" data-query="대나무">대나무</button></div></form>
+<div class="explore-layout">
+<aside class="map-column" aria-label="지역 지도"><div class="map-card"><div class="map-heading"><div><span class="eyebrow">REGION MAP</span><h3>지도에서 찾기</h3></div><span class="map-north" aria-label="위쪽이 북쪽">N ↑</span></div><div class="map-switch" role="group" aria-label="지도 보기"><button data-map="all" aria-pressed="true">전남·광주</button><button data-map="gwangju" aria-pressed="false">광주 확대</button></div><div id="mapCanvas" class="map-canvas"></div><div class="map-bottom"><span><i class="legend-jeonnam"></i>전라남도 <i class="legend-gwangju"></i>광주광역시</span><button id="resetMap" type="button">선택 해제</button></div><p class="map-source">통계청 2013 경계 자료를 단순화한 학습용 지도입니다.<br>현재의 세부 경계와 다를 수 있습니다.</p></div><div class="selected-note" id="selectedNote"><span class="small-line"></span><p>지역의 모양도 살펴보세요.<br>바다와 맞닿은 곳은 어디일까요?</p></div></aside>
+<div class="catalog"><div class="catalog-top"><div class="area-tabs" role="group" aria-label="지역 범위"><button data-area="all" aria-pressed="true">전체</button><button data-area="전남" aria-pressed="false">전남 <small>22</small></button><button data-area="광주" aria-pressed="false">광주 <small>5</small></button></div><label class="sort-label"><span class="sr-only">지역 정렬</span><select id="sortSelect"><option value="featured">둘러보기 순</option><option value="name">가나다 순</option></select></label></div><div class="category-tabs" role="group" aria-label="주제 선택"><button data-category="all" aria-pressed="true">모든 이야기</button><button data-category="자연·풍경" aria-pressed="false">자연·풍경</button><button data-category="먹거리·특산물" aria-pressed="false">먹거리·특산물</button><button data-category="역사·문화" aria-pressed="false">역사·문화</button><button data-category="축제·체험" aria-pressed="false">축제·체험</button></div><div class="result-bar"><p id="resultSummary" role="status" aria-live="polite"></p><button id="resetFilters" hidden>전체 다시 보기 <span aria-hidden="true">↺</span></button></div><div id="activeFilters" class="active-filters"></div><div id="results" class="result-grid"></div><div class="catalog-end" id="catalogEnd"><span></span>작은 발견이 모여, 우리 지역을 더 가깝게.<span></span></div></div>
+</div></section>
+<section class="field-note page-width"><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2>같은 남도, 서로 다른 이야기.</h2><p>마음에 드는 지역을 담아 두고, 우리 동네와 닮은 점을 찾아보세요.<br>자연환경과 먹거리, 문화는 어떻게 이어져 있을까요?</p><button id="showSavedBottom">내가 담은 지역 보기 <span aria-hidden="true">↗</span></button></section>
+</main>
+<footer class="site-footer page-width"><div><strong>남도 발견</strong><p>사진과 지도로 만나는 광주·전남</p></div><div class="footer-right"><button id="openCredits">사진·지도 출처</button><p>수업용 지역 도감 · 대표 항목은 지역의 여러 특징 중 일부입니다.</p></div></footer>
+<dialog id="detailDialog" class="detail-dialog" aria-labelledby="detailTitle"><button class="dialog-close" id="closeDetail" aria-label="상세 보기 닫기">×</button><div id="detailContent"></div></dialog>
+<dialog id="creditsDialog" class="credits-dialog" aria-labelledby="creditsTitle"><div class="credits-top"><div><p class="eyebrow">CREDITS & SOURCES</p><h2 id="creditsTitle">사진과 지도에 대하여</h2></div><button id="closeCredits" aria-label="출처 닫기">×</button></div><p class="credits-intro">실제 촬영 사진을 사용했습니다. 사진은 화면에 맞게 크기를 줄이고 일부 영역을 잘라 표시합니다. 각 사진의 원본·촬영자·이용 조건은 아래에서 확인할 수 있습니다. 사진의 촬영 시점은 현재와 다를 수 있습니다.</p><div class="map-credit"><h3>지도</h3><p>통계청(KOSTAT) 2013 시·군·구 경계 자료. <a href="https://github.com/southkorea/southkorea-maps" target="_blank" rel="noopener">southkorea-maps</a>의 간소화 자료를 광주·전남 범위로 추출하고 좌표를 변환했습니다. 배포 저장소의 KOSTAT 조건은 공유·변형 허용입니다. 최신 행정·측량 용도로 사용하지 않습니다.</p></div><div id="creditsList"></div></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">검색과 지도를 사용하려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+</body></html>
